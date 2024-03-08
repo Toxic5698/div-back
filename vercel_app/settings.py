@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 from dj_database_url import parse as db_url
 
@@ -79,9 +79,7 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
-POSTGRES_URL="postgres://default:OZ5nJeqgf6BX@ep-billowing-sound-a412ur5u-pooler.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"
-
-DATABASES = {'default': db_url(POSTGRES_URL), }
+DATABASES = {'default': db_url(os.getenv("POSTGRES_URL"))}
 
 
 # Password validation
