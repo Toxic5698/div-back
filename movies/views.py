@@ -3,8 +3,10 @@ from statistics import median
 from typing import List, Optional
 
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from ninja import NinjaAPI, Schema, FilterSchema, Query
 from ninja.pagination import paginate, PageNumberPagination
+from pydantic import Field
 
 from .models import Movie
 
@@ -27,17 +29,17 @@ class MovieSchemaOut(Schema):
 
 
 class MovieSchemaFilter(FilterSchema):
-    name: Optional[str]
-    rate: Optional[int]
-    added_at: Optional[datetime.datetime]
+    name: Optional[str] = Field(None, q='name__icontains')
+    rate: Optional[int] = None
+    added_at: Optional[datetime.datetime] = None
 
 
 @api.get("get-all", response=List[MovieSchemaOut])
 @paginate(PageNumberPagination)
-def movies_list(request):
+def movies_list(request, filters: MovieSchemaFilter = Query(...)):
     queryset = Movie.objects.all()
-    # movies = filters.filter(queryset)
-    return list(queryset)
+    movies = filters.filter(queryset)
+    return list(movies)
 
 
 @api.post("save")
@@ -54,6 +56,7 @@ def update_movie(request, movie_id: int, new_movie_data: MovieSchemaIn):
     movie = get_object_or_404(Movie, id=movie_id)
     movie.name = new_movie_data.name
     movie.rate = new_movie_data.rate
+    movie.added_at = timezone.now()
     movie.save()
     return {'successfully_saved': movie.name}
 
