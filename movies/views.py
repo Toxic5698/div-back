@@ -39,7 +39,7 @@ class MovieSchemaFilter(FilterSchema):
 def movies_list(request, filters: MovieSchemaFilter = Query(...)):
     queryset = Movie.objects.all()
     movies = filters.filter(queryset)
-    return list(movies)
+    return list(movies.order_by("-rate"))
 
 
 @api.post("save")
@@ -68,7 +68,7 @@ def delete_movie(request, movie_id: int):
     return {"successfully_deleted": movie.name}
 
 
-@api.get("stats/")
+@api.get("stats")
 def get_stats(request):
     all_rates = list(Movie.objects.all().values_list("rate", flat=True))
     stats = {
